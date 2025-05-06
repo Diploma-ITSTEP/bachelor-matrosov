@@ -56,8 +56,12 @@ func loadConfig(path string) (*types.AppConfig, error) {
 		return nil, fmt.Errorf("error reading config file: %v", err)
 	}
 
+	// Replace environment variables in the config
+	configStr := string(data)
+	configStr = os.ExpandEnv(configStr)
+
 	var config types.AppConfig
-	if err := json.Unmarshal(data, &config); err != nil {
+	if err := json.Unmarshal([]byte(configStr), &config); err != nil {
 		return nil, fmt.Errorf("error parsing config file: %v", err)
 	}
 
