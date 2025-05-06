@@ -472,7 +472,7 @@ func sendTelegramNotification(message string, config *types.AppConfig) error {
 	params := url.Values{}
 	params.Add("chat_id", config.TelegramChatID)
 	params.Add("text", message)
-	params.Add("parse_mode", "Markdown")
+	params.Add("parse_mode", "HTML")
 
 	// Send request
 	resp, err := http.PostForm(endpoint, params)
