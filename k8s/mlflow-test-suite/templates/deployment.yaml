@@ -1,0 +1,49 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: mlflow-test-cronjob
+spec:
+  schedule: "1 */12 * * *"  # Run every 6 hours - adjust as needed
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 0 # Maximum pod restarts in case of failure
+      parallelism: 1 # How many pods will be instantiated at once.
+      completions: 1 # How many containers of the job are instantiated one after the other (sequentially) inside the pod.
+      activeDeadlineSeconds: 3600
+      template:
+        spec:
+          containers:
+            - name: mlflow-test-suite
+              image: gidra39/mlflow-test-suite:latest  # Replace with your registry/image
+              imagePullPolicy: Always
+              args:
+                - "--epochs"
+                - "90"
+                - "--experiment"
+                - "test_autostop"
+                - "--exceed"
+                - "true"
+                - "--metric"
+                - "val_f1_score"
+                - "--threshold"
+                - "0.8"
+                - "--threshold-epoch"
+                - "15"
+              env:
+                - name: MLFLOW_TRACKING_URI
+                  value: "http://mlflow-tracking.prod.svc.cluster.local:8888"  # Fully qualified service name with port 8888
+                - name: MLFLOW_S3_ENDPOINT_URL  # Add for artifact storage if using MinIO
+                  value: "http://mlflow-minio.prod.svc.cluster.local:9000"
+                - name: PYTHONUNBUFFERED  # Ensures logs are output immediately
+                  value: "1"
+              resources:
+                requests:
+                  memory: "4Gi"
+                  cpu: "4"
+                limits:
+                  memory: "8Gi"
+                  cpu: "8"
+          restartPolicy: Never

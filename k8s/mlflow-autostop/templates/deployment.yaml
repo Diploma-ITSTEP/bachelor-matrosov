@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlflow-autostop
+  labels:
+    app: mlflow-autostop
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mlflow-autostop
+  template:
+    metadata:
+      labels:
+        app: mlflow-autostop
+    spec:
+      containers:
+        - name: mlflow-autostop
+          image: gidra39/mlflow-autostop:latest
+          imagePullPolicy: Always
+
+          args:
+          # Uncomment and modify if monitoring a specific experiment
+            - "-experiment-id"
+            - "1"
+          env:
+            - name: TELEGRAM_BOT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: telegram-credentials
+                  key: telegram-bot-token
+            - name: TELEGRAM_CHAT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: telegram-credentials
+                  key: telegram-chat-id
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/config
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
+            limits:
+              memory: "128Mi"
+              cpu: "200m"
+      volumes:
+        - name: config-volume
+          configMap:
+            name: mlflow-autostop-config
+
+      imagePullSecrets:
+        - name: dockerhub-creds

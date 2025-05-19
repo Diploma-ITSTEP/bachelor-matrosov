@@ -1,0 +1,70 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mlflow
+  namespace: argocd
+  finalizers: [resources-finalizer.argocd.argoproj.io]
+spec:
+  project: default
+  source:
+    repoURL: https://gitlab.spicyai.dev/spicyai/k8s.git
+    targetRevision: HEAD
+    path: k8s/mlflow
+    directory: { recurse: false }
+  destination: { namespace: prod, server: https://kubernetes.default.svc }
+  syncPolicy: { automated: { prune: true, selfHeal: true } }
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: metal-lb
+  namespace: argocd
+  finalizers: [resources-finalizer.argocd.argoproj.io]
+spec:
+  project: default
+  source:
+    repoURL: https://gitlab.spicyai.dev/spicyai/k8s.git
+    targetRevision: HEAD
+    path: k8s/metal-lb
+    directory: { recurse: false }
+  destination: { namespace: prod, server: https://kubernetes.default.svc }
+  syncPolicy: { automated: { prune: true, selfHeal: true } }
+ignoreDifferences:
+  - group: apps
+    kind: CustomResourceDefinition
+    jsonPointers:
+      - /spec/conversion/webhook/clientConfig/caBundle
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mlflow-autostop
+  namespace: argocd
+  finalizers: [resources-finalizer.argocd.argoproj.io]
+spec:
+  project: default
+  source:
+    repoURL: https://gitlab.spicyai.dev/spicyai/k8s.git
+    targetRevision: HEAD
+    path: k8s/mlflow-autostop
+    directory: { recurse: false }
+  destination: { namespace: prod, server: https://kubernetes.default.svc }
+  syncPolicy: { automated: { prune: true, selfHeal: true } }
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mlflow-test-suite
+  namespace: argocd
+  finalizers: [resources-finalizer.argocd.argoproj.io]
+spec:
+  project: default
+  source:
+    repoURL: https://gitlab.spicyai.dev/spicyai/k8s.git
+    targetRevision: HEAD
+    path: k8s/mlflow-test-suite
+    directory: { recurse: false }
+  destination: { namespace: prod, server: https://kubernetes.default.svc }
+  syncPolicy: { automated: { prune: true, selfHeal: true } }
+---
