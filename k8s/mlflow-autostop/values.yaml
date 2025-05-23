@@ -1,0 +1,10 @@
+config:
+  metrics:
+    # Example metric thresholds
+    # Replace with your actual metric names and thresholds
+    train_accuracy: 0.99999
+    f1_score: 0.99999
+    memory_usage_mb: 250
+  message_channels: BOTH
+  mlflow_tracking_uri: # insert your mlflow tracking uri
+  poll_interval_seconds: 10

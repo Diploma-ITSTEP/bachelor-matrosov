@@ -51,6 +51,10 @@ spec:
             limits:
               memory: "128Mi"
               cpu: "200m"
+      volumes:
+        - name: config-volume
+          configMap:
+            name: mlflow-autostop-config
 
       imagePullSecrets:
         - name: dockerhub-creds
